@@ -11,7 +11,15 @@ const MetronomePage = () => {
   const [timerId, setTimerId] = useState(null);
   const [skipClicks, setSkipClicks] = useState(false);
 
-  const NumbersForMiss = [1, 2, 3]
+  const NumbersForMiss = [1, 2, 3];
+
+  const handleButtonClick = () => {
+    setIsPlaying(!isPlaying);
+    if (isPlaying) {
+      play();
+    }
+  };
+
 
   const checkNumberForMiss = () => {
     const randomInteger = getRandomInteger(1, 10);
@@ -74,9 +82,7 @@ const MetronomePage = () => {
       </FormItem>
 
       <FormItem>
-        <Button onClick={
-          () => {setIsPlaying(!isPlaying)}
-        }>{isPlaying && 'Стоп' || 'Старт'}</Button>
+        <Button onClick={handleButtonClick}>{isPlaying && 'Стоп' || 'Старт'}</Button>
       </FormItem>
       <FormItem style={{paddingTop: '0px'}}>
         <Button
