@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import useSound from 'use-sound';
-import {Button, FormItem, Group, Slider} from '@vkontakte/vkui';
-import {getRandomInteger} from '../../util';
+import { Button, FormItem, Group, Slider } from '@vkontakte/vkui';
+import { getRandomInteger } from '../../util';
 
 const MetronomePage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -13,19 +13,30 @@ const MetronomePage = () => {
 
   const NumbersForMiss = [1, 2, 3];
 
+  const unlock = () => {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const buffer = audioContext.createBuffer(1, 1, 22050);
+    const source = audioContext.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioContext.destination);
+    source.start(0);
+    audioContext.resume();
+  };
+
   const handleButtonClick = () => {
     setIsPlaying(!isPlaying);
     if (isPlaying) {
       play();
+    } else {
+      unlock();
     }
   };
 
-
   const checkNumberForMiss = () => {
     const randomInteger = getRandomInteger(1, 10);
-    console.log(randomInteger)
+    console.log(randomInteger);
     return NumbersForMiss.some((number) => number === randomInteger);
-  }
+  };
 
   const getClick = () => {
     if (skipClicks && !checkNumberForMiss()) {
@@ -37,16 +48,15 @@ const MetronomePage = () => {
     }
   };
 
-
   useEffect(() => {
     if (timerId) {
-      clearInterval(timerId)
+      clearInterval(timerId);
     }
 
     if (isPlaying) {
       const newTimerId = setInterval(() => {
         getClick();
-        }, (60 / bpm) * 1000);
+      }, (60 / bpm) * 1000);
       setTimerId(newTimerId);
     }
 
@@ -67,8 +77,9 @@ const MetronomePage = () => {
           min={20}
           max={300}
           onChange={(e) => {
-          setBpm((parseInt(e.target.value)));
-        }}/>
+            setBpm(parseInt(e.target.value));
+          }}
+        />
       </FormItem>
 
       <FormItem>
@@ -77,23 +88,26 @@ const MetronomePage = () => {
           min={20}
           max={300}
           onChange={(value) => {
-          setBpm(Math.round(value));
-        }}/>
+            setBpm(Math.round(value));
+          }}
+        />
       </FormItem>
 
       <FormItem>
-        <Button onClick={handleButtonClick}>{isPlaying && 'Стоп' || 'Старт'}</Button>
+        <Button onClick={handleButtonClick}>
+          {isPlaying ? 'Стоп' : 'Старт'}
+        </Button>
       </FormItem>
-      <FormItem style={{paddingTop: '0px'}}>
+      <FormItem style={{ paddingTop: '0px' }}>
         <Button
           onClick={() => {
             setSkipClicks(!skipClicks);
           }}
-        >{skipClicks && 'Не пропускать доли' || 'Пропускать доли'}</Button>
+        >
+          {skipClicks ? 'Не пропускать доли' : 'Пропускать доли'}
+        </Button>
       </FormItem>
     </Group>
-
-
   );
 };
 
