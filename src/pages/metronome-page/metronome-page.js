@@ -11,20 +11,29 @@ const MetronomePage = () => {
   const [timerId, setTimerId] = useState(null);
   const [skipClicks, setSkipClicks] = useState(false);
 
+  const audioContextRef = useRef(null);
+
+  useEffect(() => {
+    const unlockAudioContext = () => {
+      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
+        audioContextRef.current.resume();
+      }
+    };
+
+    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+
+    unlockAudioContext();
+
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
+      }
+    };
+  }, []);
+
   const NumbersForMiss = [1, 2, 3];
 
-  const unlock = () => {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const buffer = audioContext.createBuffer(1, 1, 22050);
-    const source = audioContext.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioContext.destination);
-    source.start(0);
-    audioContext.resume();
-  };
-
   const handleButtonClick = () => {
-    unlock();
     setIsPlaying(!isPlaying);
     if (isPlaying) {
       play();
@@ -93,7 +102,7 @@ const MetronomePage = () => {
       </FormItem>
 
       <FormItem>
-        <Button onTouchStartCapture={handleButtonClick}>
+        <Button onClick={handleButtonClick}>
           {isPlaying ? 'Стоп' : 'Старт'}
         </Button>
       </FormItem>
