@@ -24,6 +24,7 @@ const MetronomePage = () => {
   };
 
   const handleButtonClick = () => {
+    unlock();
     setIsPlaying(!isPlaying);
     if (isPlaying) {
       play();
@@ -64,8 +65,6 @@ const MetronomePage = () => {
       }
     };
   }, [isPlaying, bpm, skipClicks]);
-
-  unlock();
 
   return (
     <Group>
