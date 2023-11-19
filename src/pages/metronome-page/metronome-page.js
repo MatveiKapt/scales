@@ -1,32 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import useSound from 'use-sound';
-import { Button, FormItem, Group, Slider } from '@vkontakte/vkui';
-import { getRandomInteger } from '../../util';
+import React, { useState, useEffect, useRef } from 'react';
 
 const MetronomePage = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [bpm, setBpm] = useState(120);
   const click = './audio/1.ogg';
-  const [play] = useSound(click);
+  const audioRef = useRef(null);
   const [timerId, setTimerId] = useState(null);
   const [skipClicks, setSkipClicks] = useState(false);
 
-  const audioContextRef = useRef(null);
-
   useEffect(() => {
     const unlockAudioContext = () => {
-      if (audioContextRef.current && audioContextRef.current.state === 'suspended') {
-        audioContextRef.current.resume();
+      if (audioRef.current && audioRef.current.state === 'suspended') {
+        audioRef.current.resume();
       }
     };
 
-    audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    audioRef.current = new (window.AudioContext || window.webkitAudioContext)();
 
     unlockAudioContext();
 
     return () => {
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
+      if (audioRef.current) {
+        audioRef.current.close();
       }
     };
   }, []);
@@ -36,7 +31,8 @@ const MetronomePage = () => {
   const handleButtonClick = () => {
     setIsPlaying(!isPlaying);
     if (isPlaying) {
-      play();
+      audioRef.current.load();
+      audioRef.current.play();
     }
   };
 
@@ -48,11 +44,13 @@ const MetronomePage = () => {
 
   const getClick = () => {
     if (skipClicks && !checkNumberForMiss()) {
-      play();
+      audioRef.current.load();
+      audioRef.current.play();
     }
 
     if (!skipClicks) {
-      play();
+      audioRef.current.load();
+      audioRef.current.play();
     }
   };
 
@@ -76,8 +74,9 @@ const MetronomePage = () => {
   }, [isPlaying, bpm, skipClicks]);
 
   return (
-    <Group>
-      <FormItem top={'Темп:'} htmlFor={'tempo'}>
+    <div>
+      <div>
+        <label htmlFor="tempo">Темп:</label>
         <input
           id="tempo"
           type="number"
@@ -88,35 +87,36 @@ const MetronomePage = () => {
             setBpm(parseInt(e.target.value));
           }}
         />
-      </FormItem>
-
-      <FormItem>
-        <Slider
+      </div>
+      <div>
+        <input
+          type="range"
           value={bpm}
           min={20}
           max={300}
-          onChange={(value) => {
-            setBpm(Math.round(value));
+          onChange={(e) => {
+            setBpm(parseInt(e.target.value));
           }}
         />
-      </FormItem>
-
-      <FormItem>
-        <Button onClick={handleButtonClick}>
-          {isPlaying ? 'Стоп' : 'Старт'}
-        </Button>
-      </FormItem>
-      <FormItem style={{ paddingTop: '0px' }}>
-        <Button
+      </div>
+      <div>
+        <button onClick={handleButtonClick}>{isPlaying ? 'Стоп' : 'Старт'}</button>
+      </div>
+      <div style={{ paddingTop: '0px' }}>
+        <button
           onClick={() => {
             setSkipClicks(!skipClicks);
           }}
         >
           {skipClicks ? 'Не пропускать доли' : 'Пропускать доли'}
-        </Button>
-      </FormItem>
-    </Group>
+        </button>
+      </div>
+      <audio ref={audioRef}>
+        <source src={click} type="audio/ogg" />
+      </audio>
+    </div>
   );
 };
 
 export default MetronomePage;
+
