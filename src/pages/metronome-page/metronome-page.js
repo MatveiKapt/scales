@@ -93,7 +93,7 @@ const MetronomePage = () => {
       </FormItem>
 
       <FormItem>
-        <Button onClick={handleButtonClick}>
+        <Button onTouchStart={handleButtonClick}>
           {isPlaying ? 'Стоп' : 'Старт'}
         </Button>
       </FormItem>
